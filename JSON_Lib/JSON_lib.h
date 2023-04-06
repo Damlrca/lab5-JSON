@@ -14,6 +14,7 @@ namespace JSON_Lib {
 	public:
 		virtual ValueType get_type() = 0;
 		virtual std::string get_val() = 0;
+		virtual void write(std::ostream& out, int level = 0) = 0;
 	};
 
 	std::string read_key(std::istream& in);
@@ -36,6 +37,7 @@ namespace JSON_Lib {
 		std::string get_val() { return value; }
 		Value& operator=(const Value&) = default;
 		~Value() = default;
+		void write(std::ostream& out, int level);
 	};
 
 	struct Link {
@@ -70,6 +72,7 @@ namespace JSON_Lib {
 		~ListValue() {
 			clear();
 		}
+		void write(std::ostream& out, int level);
 	};
 
 	class JSON {

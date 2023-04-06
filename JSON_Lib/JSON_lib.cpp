@@ -115,10 +115,12 @@ namespace JSON_Lib {
 					throw "read_IValue: eof";
 				if (c == ',' && cnt == 0)
 					throw "read_IValue: '\"' expected";
-				if (c == ',' && !(in >> c))
+				if (c == ',' && (!(in >> c) || c != '\"'))
 					throw "read_IValue: '\"' expected";
-				if (c != '\"')
-					throw "read_IValue: '\"' expected";
+				if (c != '}' && c != '\"')
+					throw "read_IValue: unexpected symbol";
+				if (c == '}')
+					continue;
 				in.unget();
 				std::string key = read_key(in);
 				if (!(in >> c) || c != ':')
@@ -143,5 +145,25 @@ namespace JSON_Lib {
 
 	int JSON::test() {
 		return 1234;
+	}
+
+	void Value::write(std::ostream& out, int level)
+	{
+		out << '\"' << this->value << '\"';
+	}
+
+	void ListValue::write(std::ostream& out, int level)
+	{
+		std::string temp(level * 4, ' ');
+		out << "{\n";
+		for (Link* t = start; t != nullptr; t = t->nxt) {
+			out << temp << "    " << "\"" << t->key << "\" : ";
+			t->val->write(out, level + 1);
+			if (t != last)
+				out << ",\n";
+			else
+				out << "\n";
+		}
+		out << temp << "}";
 	}
 }
