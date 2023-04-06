@@ -94,7 +94,7 @@ namespace JSON_Lib {
 		char c;
 		if (!(in >> c) || c != '\"')
 			throw "read_key: '\"' expected";
-		while ((in >> c) && c != '\"')
+		while (in.get(c) && c != '\"')
 			res += c;
 		if (c != '\"')
 			throw "read_key: '\"' expected";
@@ -157,7 +157,7 @@ namespace JSON_Lib {
 		std::string temp(level * 4, ' ');
 		out << "{\n";
 		for (Link* t = start; t != nullptr; t = t->nxt) {
-			out << temp << "    " << "\"" << t->key << "\" : ";
+			out << temp << "    " << "\"" << t->key << "\": ";
 			t->val->write(out, level + 1);
 			if (t != last)
 				out << ",\n";
