@@ -37,7 +37,7 @@ namespace JSON_Lib {
 		std::string get_val() { return value; }
 		Value& operator=(const Value&) = default;
 		~Value() = default;
-		void write(std::ostream& out, int level);
+		void write(std::ostream& out, int level = 0);
 	};
 
 	struct Link {
@@ -72,12 +72,46 @@ namespace JSON_Lib {
 		~ListValue() {
 			clear();
 		}
-		void write(std::ostream& out, int level);
+		void write(std::ostream& out, int level = 0);
 	};
 
 	class JSON {
+	private:
+		ListValue* iv;
 	public:
 		static int test();
+		JSON() : iv(nullptr) {}
+		JSON(const JSON& js) {
+			if (js.iv) {
+				iv = new ListValue(*js.iv);
+			}
+			else {
+				iv = nullptr;
+			}
+		}
+		void read(std::istream& in) {
+			IValue* temp = read_IValue(in);
+			if (temp->get_type() != ValueType::ListValue)
+				throw "JSON.read(): expected LishValue";
+			delete iv;
+			iv = (ListValue*)temp;
+		}
+		void write(std::ostream& out) {
+			if (iv == nullptr)
+				throw "JSON.write(): empty JSON";
+			iv->write(out);
+		}
+		JSON& operator=(const JSON& js) {
+			if (this == &js)
+				return *this;
+			delete iv;
+			iv = nullptr;
+			iv = new ListValue(*js.iv);
+			return *this;
+		}
+		~JSON() {
+			delete iv;
+		}
 	};
 }
 
