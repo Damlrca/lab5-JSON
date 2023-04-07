@@ -4,14 +4,23 @@ namespace JSON_WinForms
 {
     public partial class Form1 : Form
     {
+        private JSON js = new JSON();
+
         public Form1()
         {
             InitializeComponent();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void îòêðûòüToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            textBox1.Text = $"{JSON_CLR.test()}";
+            OpenFileDialog ofd = new OpenFileDialog();
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                js.read_file(ofd.FileName);
+                richTextBox1.Text = js.write_to_string();
+                treeView1.Nodes.Clear();
+                treeView1.Nodes.Add(js.GenerateTreeNode());
+            }
         }
     }
 }

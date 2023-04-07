@@ -78,6 +78,9 @@ namespace JSON_Lib {
 		}
 		void write(std::ostream& out, int level = 0);
 		friend class JSON_Iterator;
+		Link* get_start() {
+			return start;
+		}
 	};
 
 	class JSON_Iterator {
@@ -129,7 +132,6 @@ namespace JSON_Lib {
 	private:
 		ListValue* iv;
 	public:
-		static int test();
 		JSON() : iv(nullptr) {}
 		JSON(const JSON& js) {
 			if (js.iv) {
@@ -161,6 +163,9 @@ namespace JSON_Lib {
 			iv = nullptr;
 			iv = new ListValue(*js.iv);
 			return *this;
+		}
+		IValue* get_root() {
+			return iv;
 		}
 		~JSON() {
 			delete iv;

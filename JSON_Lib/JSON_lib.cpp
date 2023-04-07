@@ -143,10 +143,6 @@ namespace JSON_Lib {
 		}
 	}
 
-	int JSON::test() {
-		return 1234;
-	}
-
 	void Value::write(std::ostream& out, int level)
 	{
 		out << '\"' << this->value << '\"';
