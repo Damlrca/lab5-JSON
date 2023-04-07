@@ -2,7 +2,10 @@
 #define _JSON_Lib
 
 #include <string>
+#include <stack>
+#include <vector>
 #include <iostream>
+#include <utility>
 
 namespace JSON_Lib {
 	enum class ValueType {
@@ -38,6 +41,7 @@ namespace JSON_Lib {
 		Value& operator=(const Value&) = default;
 		~Value() = default;
 		void write(std::ostream& out, int level = 0);
+		friend class JSON_Iterator;
 	};
 
 	struct Link {
@@ -73,6 +77,52 @@ namespace JSON_Lib {
 			clear();
 		}
 		void write(std::ostream& out, int level = 0);
+		friend class JSON_Iterator;
+	};
+
+	class JSON_Iterator {
+		std::stack<std::pair<IValue*, Link*>> s;
+		std::vector<std::string> keys;
+	public:
+		JSON_Iterator(IValue* _iv) {
+			s.push({ _iv, nullptr });
+		}
+		void skip_to_next() {
+			while (!s.empty() && s.top().first->get_type() != ValueType::Value) {
+				if (s.top().second == nullptr) {
+					s.top().second = ((ListValue*)s.top().first)->start;
+					keys.push_back(s.top().second->key);
+					s.push({ s.top().second->val, nullptr });
+				}
+				else {
+					s.top().second = s.top().second->nxt;
+					if (s.top().second == nullptr) {
+						s.pop();
+						if (!keys.empty())
+							keys.pop_back();
+					}
+					else {
+						keys.push_back(s.top().second->key);
+						s.push({ s.top().second->val, nullptr });
+					}
+				}
+			}
+		}
+		bool has_next() {
+			skip_to_next();
+			return !s.empty();
+		}
+		std::string next() {
+			skip_to_next();
+			std::string t = s.top().first->get_val();
+			s.pop();
+			if (!keys.empty())
+				keys.pop_back();
+			return t;
+		}
+		std::vector<std::string> get_keys() {
+			return keys;
+		}
 	};
 
 	class JSON {
@@ -89,10 +139,13 @@ namespace JSON_Lib {
 				iv = nullptr;
 			}
 		}
+		JSON_Iterator get_iterator() {
+			return JSON_Iterator(iv);
+		}
 		void read(std::istream& in) {
 			IValue* temp = read_IValue(in);
 			if (temp->get_type() != ValueType::ListValue)
-				throw "JSON.read(): expected LishValue";
+				throw "JSON.read(): expected ListValue";
 			delete iv;
 			iv = (ListValue*)temp;
 		}
