@@ -4,18 +4,12 @@ namespace JSON_Lib {
 	// Link
 
 	Link::Link(const Link& l) {
-		switch (l.val->get_type())
-		{
-		case ValueType::Value:
-			val = new Value(l.val);
-			break;
-		case ValueType::ListValue:
-			val = new ListValue(l.val);
-			break;
-		default:
+		if (auto v = dynamic_cast<Value*>(l.val))
+			val = new Value(*v);
+		else if (auto v = dynamic_cast<ListValue*>(l.val))
+			val = new ListValue(*v);
+		else
 			val = nullptr;
-			break;
-		}
 		if (l.nxt) {
 			nxt = new Link(*l.nxt);
 		}
@@ -30,18 +24,12 @@ namespace JSON_Lib {
 			return *this;
 		delete val;
 		val = nullptr;
-		switch (l.val->get_type())
-		{
-		case ValueType::Value:
-			val = new Value(l.val);
-			break;
-		case ValueType::ListValue:
-			val = new ListValue(l.val);
-			break;
-		default:
+		if (auto v = dynamic_cast<Value*>(l.val))
+			val = new Value(*v);
+		else if (auto v = dynamic_cast<ListValue*>(l.val))
+			val = new ListValue(*v);
+		else
 			val = nullptr;
-			break;
-		}
 		delete nxt;
 		nxt = nullptr;
 		if (l.nxt) {
@@ -56,20 +44,6 @@ namespace JSON_Lib {
 	ListValue::ListValue(const ListValue& v) {
 		if (v.start) {
 			start = new Link(*v.start);
-			last = start;
-			while (last->nxt)
-				last = last->nxt;
-		}
-		else {
-			start = last = nullptr;
-		}
-	}
-
-	ListValue::ListValue(IValue* iv) {
-		if (iv->get_type() != ValueType::ListValue)
-			throw "ListValue(IValue*): IValue type isn't ListValue";
-		if (((ListValue*)iv)->start) {
-			start = new Link(*(((ListValue*)iv)->start));
 			last = start;
 			while (last->nxt)
 				last = last->nxt;

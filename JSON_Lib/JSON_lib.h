@@ -8,15 +8,8 @@
 #include <utility>
 
 namespace JSON_Lib {
-	enum class ValueType {
-		Value,
-		ListValue
-	};
-
 	class IValue {
 	public:
-		virtual ValueType get_type() = 0;
-		virtual std::string get_val() = 0;
 		virtual void write(std::ostream& out, int level = 0) = 0;
 	};
 
@@ -31,12 +24,6 @@ namespace JSON_Lib {
 		Value() = default;
 		Value(const Value&) = default;
 		Value(const std::string& _val) : value(_val) {}
-		Value(IValue* iv) {
-			if (iv->get_type() != ValueType::Value)
-				throw "Value(IValue*): IValue type isn't Value";
-			value = iv->get_val();
-		}
-		ValueType get_type() { return ValueType::Value; }
 		std::string get_val() { return value; }
 		Value& operator=(const Value&) = default;
 		~Value() = default;
@@ -63,11 +50,8 @@ namespace JSON_Lib {
 		Link* start;
 		Link* last;
 	public:
-		ValueType get_type() { return ValueType::ListValue; }
-		std::string get_val() { throw "ListValue doesn't have value"; }
 		ListValue() : start(nullptr), last(nullptr) {}
 		ListValue(const ListValue& v);
-		ListValue(IValue* iv);
 		void add(const std::string& key, IValue* val);
 		void clear() {
 			delete start;
@@ -91,9 +75,9 @@ namespace JSON_Lib {
 			s.push({ _iv, nullptr });
 		}
 		void skip_to_next() {
-			while (!s.empty() && s.top().first->get_type() != ValueType::Value) {
+			while (!s.empty() && dynamic_cast<Value*>(s.top().first) == nullptr) {
 				if (s.top().second == nullptr) {
-					s.top().second = ((ListValue*)s.top().first)->start;
+					s.top().second = dynamic_cast<ListValue*>(s.top().first)->start;
 					keys.push_back(s.top().second->key);
 					s.push({ s.top().second->val, nullptr });
 				}
@@ -117,7 +101,13 @@ namespace JSON_Lib {
 		}
 		std::string next() {
 			skip_to_next();
-			std::string t = s.top().first->get_val();
+			std::string t;
+			if (auto v = dynamic_cast<Value*>(s.top().first)) {
+				t = v->get_val();
+			}
+			else {
+				throw "";
+			}
 			s.pop();
 			if (!keys.empty())
 				keys.pop_back();
@@ -146,10 +136,13 @@ namespace JSON_Lib {
 		}
 		void read(std::istream& in) {
 			IValue* temp = read_IValue(in);
-			if (temp->get_type() != ValueType::ListValue)
+			if (auto lv = dynamic_cast<ListValue*>(temp)) {
+				delete iv;
+				iv = lv;
+			}
+			else {
 				throw "JSON.read(): expected ListValue";
-			delete iv;
-			iv = (ListValue*)temp;
+			}
 		}
 		void write(std::ostream& out) {
 			if (iv == nullptr)

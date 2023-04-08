@@ -10,11 +10,11 @@ namespace JSON_Lib_CLR {
 	using namespace System::Collections::Generic;
 
 	array<TreeNode^>^ GenerateTreeNodeArray(JSON_Lib::IValue* iv) {
-		if (iv->get_type() == JSON_Lib::ValueType::Value)
+		if (auto v = dynamic_cast<JSON_Lib::Value*>(iv))
 			return gcnew array<TreeNode^>{
-			gcnew TreeNode(gcnew System::String(iv->get_val().c_str()))};
-		else {
-			JSON_Lib::Link* st = ((JSON_Lib::ListValue*)iv)->get_start();
+			gcnew TreeNode(gcnew System::String(v->get_val().c_str()))};
+		else if (auto v = dynamic_cast<JSON_Lib::ListValue*>(iv)) {
+			JSON_Lib::Link* st = v->get_start();
 			List<TreeNode^>^ lst = gcnew List<TreeNode^>(0);
 			while (st) {
 				lst->Add(gcnew TreeNode(
@@ -31,6 +31,9 @@ namespace JSON_Lib_CLR {
 				i++;
 			}
 			return res;
+		}
+		else {
+			throw "";
 		}
 	}
 
