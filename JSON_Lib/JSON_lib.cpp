@@ -4,18 +4,14 @@ namespace JSON_Lib {
 	// Link
 
 	Link::Link(const Link& l) {
-		if (auto v = dynamic_cast<Value*>(l.val))
-			val = new Value(*v);
-		else if (auto v = dynamic_cast<ListValue*>(l.val))
-			val = new ListValue(*v);
+		if (l.val)
+			val = l.val->copy();
 		else
 			val = nullptr;
-		if (l.nxt) {
+		if (l.nxt)
 			nxt = new Link(*l.nxt);
-		}
-		else {
+		else
 			nxt = nullptr;
-		}
 		key = l.key;
 	}
 	
@@ -24,17 +20,14 @@ namespace JSON_Lib {
 			return *this;
 		delete val;
 		val = nullptr;
-		if (auto v = dynamic_cast<Value*>(l.val))
-			val = new Value(*v);
-		else if (auto v = dynamic_cast<ListValue*>(l.val))
-			val = new ListValue(*v);
+		if (l.val)
+			val = l.val->copy();
 		else
 			val = nullptr;
 		delete nxt;
 		nxt = nullptr;
-		if (l.nxt) {
+		if (l.nxt)
 			nxt = new Link(*l.nxt);
-		}
 		key = l.key;
 		return *this;
 	}

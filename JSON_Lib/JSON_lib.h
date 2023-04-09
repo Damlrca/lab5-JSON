@@ -11,6 +11,7 @@ namespace JSON_Lib {
 	class IValue {
 	public:
 		virtual void write(std::ostream& out, int level = 0) = 0;
+		virtual IValue* copy() = 0;
 	};
 
 	std::string read_key(std::istream& in);
@@ -28,6 +29,7 @@ namespace JSON_Lib {
 		Value& operator=(const Value&) = default;
 		~Value() = default;
 		void write(std::ostream& out, int level = 0);
+		IValue* copy() { return new Value(*this); }
 		friend class JSON_Iterator;
 	};
 
@@ -61,6 +63,7 @@ namespace JSON_Lib {
 			clear();
 		}
 		void write(std::ostream& out, int level = 0);
+		IValue* copy() { return new ListValue(*this); }
 		friend class JSON_Iterator;
 		Link* get_start() {
 			return start;
