@@ -139,12 +139,17 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="test_files\test1.txt" />
-    <Text Include="test_files\test2.txt" />
-    <Text Include="test_files\test3.txt" />
-    <Text Include="test_files\test4.txt" />
+    <Text Include="test_files\test1.json" />
+    <Text Include="test_files\test2.json" />
+    <Text Include="test_files\test3.json" />
+    <Text Include="test_files\test4.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

@@ -1,9 +1,12 @@
 #include "JSON_lib.h"
 
 namespace JSON_Lib {
-	// Link
+	// >----------<
+	//     Link    
+	// >----------<
 
 	Link::Link(const Link& l) {
+		key = l.key;
 		if (l.val)
 			val = l.val->copy();
 		else
@@ -12,31 +15,30 @@ namespace JSON_Lib {
 			nxt = new Link(*l.nxt);
 		else
 			nxt = nullptr;
-		key = l.key;
 	}
 	
 	Link& Link::operator=(const Link& l) {
 		if (this == &l)
 			return *this;
+		key = l.key;
 		delete val;
 		val = nullptr;
 		if (l.val)
 			val = l.val->copy();
-		else
-			val = nullptr;
 		delete nxt;
 		nxt = nullptr;
 		if (l.nxt)
 			nxt = new Link(*l.nxt);
-		key = l.key;
 		return *this;
 	}
+	
+	// >---------------<
+	//     ListValue    
+	// >---------------<
 
-	// ListValue
-
-	ListValue::ListValue(const ListValue& v) {
-		if (v.start) {
-			start = new Link(*v.start);
+	ListValue::ListValue(const ListValue& l) {
+		if (l.start) {
+			start = new Link(*l.start);
 			last = start;
 			while (last->nxt)
 				last = last->nxt;
@@ -44,6 +46,22 @@ namespace JSON_Lib {
 		else {
 			start = last = nullptr;
 		}
+	}
+
+	ListValue& ListValue::operator=(const ListValue& l) {
+		if (this == &l)
+			return *this;
+		clear();
+		if (l.start) {
+			start = new Link(*l.start);
+			last = start;
+			while (last->nxt)
+				last = last->nxt;
+		}
+		else {
+			start = last = nullptr;
+		}
+		return *this;
 	}
 
 	void ListValue::add(const std::string& key, IValue* val) {
@@ -56,15 +74,19 @@ namespace JSON_Lib {
 		}
 	}
 
-	std::string read_key(std::istream& in) {
+	// >--------------------<
+	//     read functions
+	// >--------------------<
+
+	std::string read_JSONstring(std::istream& in) {
 		std::string res;
 		char c;
 		if (!(in >> c) || c != '\"')
-			throw "read_key: '\"' expected";
+			throw "read_JSONstring: '\"' expected";
 		while (in.get(c) && c != '\"')
 			res += c;
 		if (c != '\"')
-			throw "read_key: '\"' expected";
+			throw "read_JSONstring: '\"' expected";
 		return res;
 	}
 
@@ -72,61 +94,67 @@ namespace JSON_Lib {
 		char first_symbol;
 		if (!(in >> first_symbol))
 			throw "read_IValue: nothing to read";
-		if (first_symbol == '{') {
-			// ListValue
+		if (first_symbol == '{') { // ListValue
 			ListValue* res = new ListValue{};
 			char c;
-			int cnt = 0;
-			do {
-				if (!(in >> c))
-					throw "read_IValue: eof";
-				if (c == ',' && cnt == 0)
-					throw "read_IValue: '\"' expected";
-				if (c == ',' && (!(in >> c) || c != '\"'))
-					throw "read_IValue: '\"' expected";
-				if (c != '}' && c != '\"')
-					throw "read_IValue: unexpected symbol";
-				if (c == '}')
-					continue;
-				in.unget();
-				std::string key = read_key(in);
-				if (!(in >> c) || c != ':')
-					throw "read_IValue: ':' expected";
-				IValue* iv = read_IValue(in);
-				res->add(key, iv);
-				cnt++;
-			} while (c != '}');
+			int count = 0;
+			try {
+				do {
+					if (!(in >> c))
+						throw "read_IValue: eof";
+					if (c == ',' && count == 0)
+						throw "read_IValue: '\"' expected";
+					if (c == ',' && (!(in >> c) || c != '\"'))
+						throw "read_IValue: '\"' expected";
+					if (c != '}' && c != '\"')
+						throw "read_IValue: unexpected symbol";
+					if (c == '}')
+						continue; // or break?
+					in.unget();
+					std::string key = read_JSONstring(in);
+					if (!(in >> c) || c != ':')
+						throw "read_IValue: ':' expected";
+					IValue* iv = read_IValue(in);
+					res->add(key, iv);
+					count++;
+				} while (c != '}');
+			}
+			catch (...) {
+				delete res;
+				throw;
+			}
 			return res;
 		}
-		else if (first_symbol == '\"') {
-			// Value
+		else if (first_symbol == '\"') { // Value
 			in.unget();
-			std::string t = read_key(in);
-			Value* v = new Value(t);
-			return v;
+			std::string t = read_JSONstring(in);
+			return new Value(t);
 		}
 		else {
 			throw "read_IValue: wrong first symbol";
 		}
 	}
 
-	void Value::write(std::ostream& out, int level)
+	// >----------------------------<
+	//     IValue write functions    
+	// >----------------------------<
+
+	void Value::write(std::ostream& out, int level) // 'level' not used
 	{
 		out << '\"' << this->value << '\"';
 	}
 
 	void ListValue::write(std::ostream& out, int level)
 	{
-		std::string temp(level * 4, ' ');
+		std::string offset(level * 4, ' ');
 		out << "{\n";
 		for (Link* t = start; t != nullptr; t = t->nxt) {
-			out << temp << "    " << "\"" << t->key << "\": ";
+			out << offset << "    \"" << t->key << "\": ";
 			t->val->write(out, level + 1);
 			if (t != last)
-				out << ",\n";
-			else
-				out << "\n";
+				out << ",";
+			out << "\n";
 		}
-		out << temp << "}";
+		out << offset << "}";
 	}
 }

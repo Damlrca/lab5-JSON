@@ -8,13 +8,19 @@
 #include <utility>
 
 namespace JSON_Lib {
+	enum class IValueType {
+		Value,
+		ListValue
+	};
+
 	class IValue {
 	public:
 		virtual void write(std::ostream& out, int level = 0) = 0;
 		virtual IValue* copy() = 0;
+		virtual IValueType get_type() = 0;
 	};
 
-	std::string read_key(std::istream& in);
+	std::string read_JSONstring(std::istream& in);
 
 	IValue* read_IValue(std::istream& in);
 
@@ -25,11 +31,15 @@ namespace JSON_Lib {
 		Value() = default;
 		Value(const Value&) = default;
 		Value(const std::string& _val) : value(_val) {}
-		std::string get_val() { return value; }
 		Value& operator=(const Value&) = default;
 		~Value() = default;
+
+		std::string get_val() { return value; }
+
 		void write(std::ostream& out, int level = 0);
 		IValue* copy() { return new Value(*this); }
+		IValueType get_type() { return IValueType::Value; }
+
 		friend class JSON_Iterator;
 	};
 
@@ -37,6 +47,7 @@ namespace JSON_Lib {
 		std::string key;
 		IValue* val;
 		Link* nxt;
+
 		Link(const std::string& _key, IValue* _val, Link* _nxt = nullptr)
 			: key(_key), val(_val), nxt(_nxt) {}
 		Link(const Link& l);
@@ -53,19 +64,22 @@ namespace JSON_Lib {
 		Link* last;
 	public:
 		ListValue() : start(nullptr), last(nullptr) {}
-		ListValue(const ListValue& v);
+		ListValue(const ListValue& l);
+		ListValue& operator=(const ListValue& l);
+		~ListValue() { clear(); }
+
 		void add(const std::string& key, IValue* val);
 		void clear() {
 			delete start;
 			start = last = nullptr;
 		}
-		~ListValue() {
-			clear();
-		}
+
 		void write(std::ostream& out, int level = 0);
 		IValue* copy() { return new ListValue(*this); }
+		IValueType get_type() { return IValueType::ListValue; }
+
 		friend class JSON_Iterator;
-		Link* get_start() {
+		Link* get_start() { // delete later!
 			return start;
 		}
 	};
@@ -160,7 +174,7 @@ namespace JSON_Lib {
 			iv = new ListValue(*js.iv);
 			return *this;
 		}
-		IValue* get_root() {
+		IValue* get_root() { // delete later!
 			return iv;
 		}
 		~JSON() {
