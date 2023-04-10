@@ -21,7 +21,7 @@ namespace JSON_Lib_CLR {
 					gcnew System::String(st->key.c_str()),
 					GenerateTreeNodeArray(st->val)
 				));
-				st = st->nxt;
+				st = st->next;
 			}
 			array<TreeNode^>^ res = gcnew array<TreeNode^>(lst->Count);
 			int i = 0;

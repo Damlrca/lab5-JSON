@@ -6,29 +6,35 @@ namespace JSON_Lib {
 	// >----------<
 
 	Link::Link(const Link& l) {
+		prev = nullptr;
 		key = l.key;
 		if (l.val)
 			val = l.val->copy();
 		else
 			val = nullptr;
-		if (l.nxt)
-			nxt = new Link(*l.nxt);
+		if (l.next) {
+			next = new Link(*l.next);
+			next->prev = this;
+		}
 		else
-			nxt = nullptr;
+			next = nullptr;
 	}
 	
 	Link& Link::operator=(const Link& l) {
 		if (this == &l)
 			return *this;
+		prev = nullptr;
 		key = l.key;
 		delete val;
 		val = nullptr;
 		if (l.val)
 			val = l.val->copy();
-		delete nxt;
-		nxt = nullptr;
-		if (l.nxt)
-			nxt = new Link(*l.nxt);
+		delete next;
+		next = nullptr;
+		if (l.next) {
+			next = new Link(*l.next);
+			next->prev = this;
+		}
 		return *this;
 	}
 	
@@ -40,8 +46,8 @@ namespace JSON_Lib {
 		if (l.start) {
 			start = new Link(*l.start);
 			last = start;
-			while (last->nxt)
-				last = last->nxt;
+			while (last->next)
+				last = last->next;
 		}
 		else {
 			start = last = nullptr;
@@ -55,8 +61,8 @@ namespace JSON_Lib {
 		if (l.start) {
 			start = new Link(*l.start);
 			last = start;
-			while (last->nxt)
-				last = last->nxt;
+			while (last->next)
+				last = last->next;
 		}
 		else {
 			start = last = nullptr;
@@ -65,9 +71,9 @@ namespace JSON_Lib {
 	}
 
 	void ListValue::add(const std::string& key, IValue* val) {
-		if (start) {
-			last->nxt = new Link(key, val);
-			last = last->nxt;
+		if (last) {
+			last->next = new Link(key, val, nullptr, last);
+			last = last->next;
 		}
 		else {
 			last = start = new Link(key, val);
@@ -148,7 +154,7 @@ namespace JSON_Lib {
 	{
 		std::string offset(level * 4, ' ');
 		out << "{\n";
-		for (Link* t = start; t != nullptr; t = t->nxt) {
+		for (Link* t = start; t != nullptr; t = t->next) {
 			out << offset << "    \"" << t->key << "\": ";
 			t->val->write(out, level + 1);
 			if (t != last)
@@ -166,7 +172,7 @@ namespace JSON_Lib {
 		if (root)
 			return JSON_Iterator(root);
 		else
-			throw "JSON.write(): empty JSON";
+			throw "JSON.get_iterator(): empty JSON";
 	}
 
 	void JSON::read(std::istream& in) {

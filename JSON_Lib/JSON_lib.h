@@ -46,14 +46,15 @@ namespace JSON_Lib {
 	struct Link {
 		std::string key;
 		IValue* val;
-		Link* nxt;
+		Link* next;
+		Link* prev;
 
-		Link(const std::string& _key, IValue* _val, Link* _nxt = nullptr)
-			: key(_key), val(_val), nxt(_nxt) {}
+		Link(const std::string& _key, IValue* _val, Link* _nxt = nullptr, Link* _prv = nullptr)
+			: key(_key), val(_val), next(_nxt), prev(_prv) {}
 		Link(const Link& l);
 		Link& operator=(const Link& l);
 		~Link() {
-			delete nxt;
+			delete next;
 			delete val;
 		}
 	};
@@ -86,12 +87,75 @@ namespace JSON_Lib {
 
 	class JSON_Iterator {
 	private:
-		std::stack<std::pair<IValue*, Link*>> s;
-		std::vector<std::string> keys;
+		IValue* root;
+		IValue* now;
+		std::stack<std::pair<IValue*, Link*>> s; //old
+		std::vector<std::string> keys; //old
+		std::stack<std::pair<IValue*, Link*>> stack; // ListValue: {IValue, start}, Value: {IValue, nullptr}
 	public:
 		JSON_Iterator(IValue* _iv) {
-			s.push({ _iv, nullptr });
+			s.push({ _iv, nullptr }); //old
+			now = root = _iv;
+			if (root->get_type() == IValueType::ListValue)
+				stack.push({ now, static_cast<ListValue*>(root)->start });
+			else if (root->get_type() == IValueType::Value)
+				stack.push({ now, nullptr });
 		}
+		//JSON_Iterator(const JSON_Iterator&) = delete; //нельзя :(
+		//JSON_Iterator& operator=(const JSON_Iterator&) = delete;
+		void back_to_root() {
+			while (!s.empty())
+				s.pop();
+			keys.clear();
+		}
+		IValueType current_type() {
+			return now->get_type();
+		}
+		std::vector<std::string> current_list() {
+			if (current_type() != IValueType::ListValue)
+				throw "expected that now is ListValue";
+			std::vector<std::string> ret;
+			for (auto it = static_cast<ListValue*>(now)->start; it != nullptr; it = it->next) {
+				ret.push_back(it->key);
+			}
+			return ret;
+		}
+		void go_to_key(const std::string&) {
+
+		}
+		std::string& current_key() {
+
+		}
+		std::string& current_value() {
+			if (current_type() != IValueType::Value)
+				throw "expected that now is Value";
+			return static_cast<Value*>(now)->value;
+		}
+		/*bool can_go_up() {
+
+		}
+		void go_up() {
+
+		}
+		bool can_go_down() {
+
+		}
+		void go_down() {
+
+		}
+		bool can_go_prev() {
+
+		}
+		void go_prev() {
+
+		}
+		bool can_go_next() {
+
+		}
+		void go_next() {
+
+		}*/
+		// old:
 		void skip_to_next() {
 			while (!s.empty() && dynamic_cast<Value*>(s.top().first) == nullptr) {
 				if (s.top().second == nullptr) {
@@ -100,7 +164,7 @@ namespace JSON_Lib {
 					s.push({ s.top().second->val, nullptr });
 				}
 				else {
-					s.top().second = s.top().second->nxt;
+					s.top().second = s.top().second->next;
 					if (s.top().second == nullptr) {
 						s.pop();
 						if (!keys.empty())
