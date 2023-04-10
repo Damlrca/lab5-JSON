@@ -4,6 +4,49 @@
 using namespace std;
 using namespace JSON_Lib;
 
+void write_using_iterator(JSON& js) {
+	auto it = js.get_iterator();
+	stack<int> was;
+	was.push(0);
+	while (!was.empty()) {
+		if (it.current_type() == IValueType::Value) {
+			cout << '\"' << it.current_value() << "\"";
+			it.go_up();
+			was.pop();
+			if (it.can_go_next())
+				cout << ',';
+			cout << '\n';
+		}
+		else if (it.current_type() == IValueType::ListValue) {
+			if (was.top()) {
+				if (it.can_go_next()) {
+					it.go_next();
+					was.top() = 0;
+				}
+				else {
+					was.pop();
+					if (it.can_go_up())
+						it.go_up();
+					cout << string(was.size() * 4, ' ');
+					cout << '}';
+					if (it.can_go_next())
+						cout << ',';
+					cout << '\n';
+				}
+			}
+			else {
+				if (!it.can_go_prev())
+					cout << "{\n";
+				cout << string(was.size() * 4, ' ');
+				cout << '\"' << it.current_key() << "\": ";
+				was.top() = 1;
+				was.push(0);
+				it.go_down();
+			}
+		}
+	}
+}
+
 int main() {
 	fstream in;
 
@@ -40,7 +83,8 @@ int main() {
 	cout << "TEST 5: (file 4)" << endl;
 	in.open("test_files/test4.json");
 	js.read(in);
-	js.write(cout);
+	write_using_iterator(js);
+	//js.write(cout);
 	cout << endl;
 	in.close();
 

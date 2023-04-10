@@ -88,7 +88,7 @@ namespace JSON_Lib {
 	class JSON_Iterator {
 	private:
 		std::stack<std::pair<IValue*, Link*>> s;
-		// ListValue: {IValue, start}
+		// ListValue: {IValue, start} // what if ListValue is empty ?
 		// Value: {IValue, nullptr}
 	public:
 		JSON_Iterator(IValue* root) {
