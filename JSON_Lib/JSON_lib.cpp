@@ -191,4 +191,56 @@ namespace JSON_Lib {
 			throw "JSON.write(): empty JSON";
 		root->write(out);
 	}
+
+	// >-------------------<
+	//     JSON_Iterator    
+	// >-------------------<
+
+	bool JSON_Iterator::can_go_up() {
+		return s.size() > 1;
+	}
+
+	void JSON_Iterator::go_up() {
+		if (!can_go_up())
+			throw "";
+		s.pop();
+	}
+
+	bool JSON_Iterator::can_go_down() {
+		return s.top().second != nullptr;
+	}
+
+	void JSON_Iterator::go_down() {
+		if (!can_go_down())
+			throw "";
+		auto iv = s.top().second->val;
+		if (iv->get_type() == IValueType::ListValue)
+			s.push({ iv, static_cast<ListValue*>(iv)->start });
+		else if (iv->get_type() == IValueType::Value)
+			s.push({ iv, nullptr });
+	}
+
+	bool JSON_Iterator::can_go_prev() {
+		if (s.top().second == nullptr)
+			throw "";
+		return s.top().second->prev != nullptr;
+	}
+
+	void JSON_Iterator::go_prev() {
+		if (!can_go_prev())
+			throw "";
+		s.top().second = s.top().second->prev;
+	}
+
+	bool JSON_Iterator::can_go_next() {
+		if (s.top().second == nullptr)
+			throw "";
+		return s.top().second->next != nullptr;
+	}
+
+	void JSON_Iterator::go_next() {
+		if (!can_go_next())
+			throw "";
+		s.top().second = s.top().second->next;
+	}
 }

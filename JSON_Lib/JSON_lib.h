@@ -87,117 +87,53 @@ namespace JSON_Lib {
 
 	class JSON_Iterator {
 	private:
-		IValue* root;
-		IValue* now;
-		std::stack<std::pair<IValue*, Link*>> s; //old
-		std::vector<std::string> keys; //old
-		std::stack<std::pair<IValue*, Link*>> stack; // ListValue: {IValue, start}, Value: {IValue, nullptr}
+		std::stack<std::pair<IValue*, Link*>> s;
+		// ListValue: {IValue, start}
+		// Value: {IValue, nullptr}
 	public:
-		JSON_Iterator(IValue* _iv) {
-			s.push({ _iv, nullptr }); //old
-			now = root = _iv;
+		JSON_Iterator(IValue* root) {
 			if (root->get_type() == IValueType::ListValue)
-				stack.push({ now, static_cast<ListValue*>(root)->start });
+				s.push({ root, static_cast<ListValue*>(root)->start });
 			else if (root->get_type() == IValueType::Value)
-				stack.push({ now, nullptr });
+				s.push({ root, nullptr });
 		}
-		//JSON_Iterator(const JSON_Iterator&) = delete; //нельзя :(
+		//JSON_Iterator(const JSON_Iterator&) = delete; //not work with get_iterator :(
 		//JSON_Iterator& operator=(const JSON_Iterator&) = delete;
-		void back_to_root() {
-			while (!s.empty())
-				s.pop();
-			keys.clear();
-		}
+		/*
+		//TODO
+		void back_to_root();
+		void go_to_key(const std::string&)();
+		}*/
 		IValueType current_type() {
-			return now->get_type();
+			return s.top().first->get_type();
 		}
 		std::vector<std::string> current_list() {
 			if (current_type() != IValueType::ListValue)
 				throw "expected that now is ListValue";
 			std::vector<std::string> ret;
-			for (auto it = static_cast<ListValue*>(now)->start; it != nullptr; it = it->next) {
+			for (auto it = static_cast<ListValue*>(s.top().first)->start; it != nullptr; it = it->next)
 				ret.push_back(it->key);
-			}
 			return ret;
 		}
-		void go_to_key(const std::string&) {
-
-		}
 		std::string& current_key() {
-
+			if (s.top().second == nullptr)
+				throw "";
+			return s.top().second->key;
 		}
 		std::string& current_value() {
 			if (current_type() != IValueType::Value)
 				throw "expected that now is Value";
-			return static_cast<Value*>(now)->value;
+			return static_cast<Value*>(s.top().first)->value;
 		}
-		/*bool can_go_up() {
 
-		}
-		void go_up() {
-
-		}
-		bool can_go_down() {
-
-		}
-		void go_down() {
-
-		}
-		bool can_go_prev() {
-
-		}
-		void go_prev() {
-
-		}
-		bool can_go_next() {
-
-		}
-		void go_next() {
-
-		}*/
-		// old:
-		void skip_to_next() {
-			while (!s.empty() && dynamic_cast<Value*>(s.top().first) == nullptr) {
-				if (s.top().second == nullptr) {
-					s.top().second = dynamic_cast<ListValue*>(s.top().first)->start;
-					keys.push_back(s.top().second->key);
-					s.push({ s.top().second->val, nullptr });
-				}
-				else {
-					s.top().second = s.top().second->next;
-					if (s.top().second == nullptr) {
-						s.pop();
-						if (!keys.empty())
-							keys.pop_back();
-					}
-					else {
-						keys.push_back(s.top().second->key);
-						s.push({ s.top().second->val, nullptr });
-					}
-				}
-			}
-		}
-		bool has_next() {
-			skip_to_next();
-			return !s.empty();
-		}
-		std::string next() {
-			skip_to_next();
-			std::string t;
-			if (auto v = dynamic_cast<Value*>(s.top().first)) {
-				t = v->get_val();
-			}
-			else {
-				throw "";
-			}
-			s.pop();
-			if (!keys.empty())
-				keys.pop_back();
-			return t;
-		}
-		std::vector<std::string> get_keys() {
-			return keys;
-		}
+		bool can_go_up();
+		void go_up();
+		bool can_go_down();
+		void go_down();
+		bool can_go_prev();
+		void go_prev();
+		bool can_go_next();
+		void go_next();
 	};
 
 	class JSON {
