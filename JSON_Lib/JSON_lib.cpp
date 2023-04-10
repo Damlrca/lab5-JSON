@@ -157,4 +157,32 @@ namespace JSON_Lib {
 		}
 		out << offset << "}";
 	}
+
+	// >----------<
+	//     JSON    
+	// >----------<
+
+	JSON_Iterator JSON::get_iterator() {
+		if (root)
+			return JSON_Iterator(root);
+		else
+			throw "JSON.write(): empty JSON";
+	}
+
+	void JSON::read(std::istream& in) {
+		IValue* temp = read_IValue(in);
+		if (temp->get_type() == IValueType::ListValue) {
+			clear();
+			root = static_cast<ListValue*>(temp);
+		}
+		else {
+			throw "JSON.read(): expected ListValue";
+		}
+	}
+
+	void JSON::write(std::ostream& out) {
+		if (root == nullptr)
+			throw "JSON.write(): empty JSON";
+		root->write(out);
+	}
 }

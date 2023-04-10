@@ -85,6 +85,7 @@ namespace JSON_Lib {
 	};
 
 	class JSON_Iterator {
+	private:
 		std::stack<std::pair<IValue*, Link*>> s;
 		std::vector<std::string> keys;
 	public:
@@ -137,48 +138,34 @@ namespace JSON_Lib {
 
 	class JSON {
 	private:
-		ListValue* iv;
+		ListValue* root;
 	public:
-		JSON() : iv(nullptr) {}
+		JSON() : root(nullptr) {}
 		JSON(const JSON& js) {
-			if (js.iv) {
-				iv = new ListValue(*js.iv);
-			}
-			else {
-				iv = nullptr;
-			}
-		}
-		JSON_Iterator get_iterator() {
-			return JSON_Iterator(iv);
-		}
-		void read(std::istream& in) {
-			IValue* temp = read_IValue(in);
-			if (auto lv = dynamic_cast<ListValue*>(temp)) {
-				delete iv;
-				iv = lv;
-			}
-			else {
-				throw "JSON.read(): expected ListValue";
-			}
-		}
-		void write(std::ostream& out) {
-			if (iv == nullptr)
-				throw "JSON.write(): empty JSON";
-			iv->write(out);
+			if (js.root)
+				root = new ListValue(*js.root);
+			else
+				root = nullptr;
 		}
 		JSON& operator=(const JSON& js) {
 			if (this == &js)
 				return *this;
-			delete iv;
-			iv = nullptr;
-			iv = new ListValue(*js.iv);
+			clear();
+			if (js.root)
+				root = new ListValue(*js.root);
 			return *this;
 		}
-		IValue* get_root() { // delete later!
-			return iv;
+		~JSON() { clear(); }
+
+		void clear() {
+			delete root;
+			root = nullptr;
 		}
-		~JSON() {
-			delete iv;
+		JSON_Iterator get_iterator();
+		void read(std::istream& in);
+		void write(std::ostream& out);
+		IValue* get_root() { // delete later!
+			return root;
 		}
 	};
 }
