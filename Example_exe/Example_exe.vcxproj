@@ -144,6 +144,9 @@
     <Text Include="test_files\test3.json" />
     <Text Include="test_files\test4.json" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="test_files\test5.json" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

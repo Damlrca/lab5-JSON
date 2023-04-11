@@ -25,4 +25,7 @@
     <Text Include="test_files\test1.json" />
     <Text Include="test_files\test2.json" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="test_files\test5.json" />
+  </ItemGroup>
 </Project>

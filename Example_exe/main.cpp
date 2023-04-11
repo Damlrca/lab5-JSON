@@ -34,6 +34,18 @@ void write_using_iterator(JSON& js) {
 					cout << '\n';
 				}
 			}
+			else if (it.current_list_is_empty()) {
+				cout << "{\n";
+				was.pop();
+				cout << string(was.size() * 4, ' ');
+				cout << '}';
+				if (it.can_go_up()) {
+					it.go_up();
+					if (it.can_go_next())
+						cout << ',';
+				}
+				cout << '\n';
+			}
 			else {
 				if (!it.can_go_prev())
 					cout << "{\n";
@@ -47,47 +59,47 @@ void write_using_iterator(JSON& js) {
 	}
 }
 
+void test(int id, string filename) {
+	filename = "test_files/" + filename;
+	cout << "TEST #" << id << " (" << filename << ") recursive write:" << endl;
+	JSON js{};
+	ifstream in;
+	in.open(filename);
+	js.read(in);
+	js.write(cout);
+	in.close();
+}
+
+void test_non_rec(int id, string filename) {
+	filename = "test_files/" + filename;
+	cout << "TEST #" << id << " (" << filename << ") iterative write:" << endl;
+	JSON js{};
+	ifstream in;
+	in.open(filename);
+	js.read(in);
+	write_using_iterator(js);
+	in.close();
+}
+
 int main() {
-	fstream in;
+	test(1, "test1.json");
+	test(2, "test2.json");
+	test(3, "test3.json");
+	test(4, "test4.json");
+	test(5, "test5.json");
+
+	test_non_rec(6, "test1.json");
+	test_non_rec(7, "test2.json");
+	test_non_rec(8, "test3.json");
+	test_non_rec(9, "test4.json");
+	test_non_rec(10, "test5.json"); // empty { }
 
 	JSON js{};
-
-	cout << "TEST 1 :\n";
-	in.open("test_files/test1.json");
-	js.read(in);
-	js.write(cout);
-	cout << endl;
-	in.close();
-
-	cout << "TEST 2 :\n";
-	in.open("test_files/test2.json");
-	js.read(in);
-	js.write(cout);
-	cout << endl;
-	in.close();
-
-	cout << "TEST 3 :\n";
-	in.open("test_files/test3.json");
-	js.read(in);
-	js.write(cout);
-	cout << endl;
-	in.close();
-
-	cout << "TEST 4 :\n";
-	in.open("test_files/test4.json");
-	js.read(in);
-	js.write(cout);
-	cout << endl;
-	in.close();
-
-	cout << "TEST 5: (file 4)" << endl;
+	ifstream in;
+	cout << "TEST ? (file test4.json) with commands:" << endl;
 	in.open("test_files/test4.json");
 	js.read(in);
 	write_using_iterator(js);
-	//js.write(cout);
-	cout << endl;
-	in.close();
-
 	JSON_Iterator iter = js.get_iterator();
 	cout << "List of commands: \n";
 	cout << "0.current_type  1.current_list  2.current_key  3.current_value \n";

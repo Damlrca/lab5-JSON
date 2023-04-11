@@ -190,6 +190,7 @@ namespace JSON_Lib {
 		if (root == nullptr)
 			throw "JSON.write(): empty JSON";
 		root->write(out);
+		out << std::endl;
 	}
 
 	// >-------------------<
@@ -207,7 +208,7 @@ namespace JSON_Lib {
 	}
 
 	bool JSON_Iterator::can_go_down() {
-		return s.top().second != nullptr;
+		return (current_type() == IValueType::ListValue) && (!current_list_is_empty());
 	}
 
 	void JSON_Iterator::go_down() {
@@ -221,7 +222,9 @@ namespace JSON_Lib {
 	}
 
 	bool JSON_Iterator::can_go_prev() {
-		if (s.top().second == nullptr)
+		if (current_type() != IValueType::ListValue)
+			throw "";
+		if (current_list_is_empty())
 			throw "";
 		return s.top().second->prev != nullptr;
 	}
@@ -233,7 +236,9 @@ namespace JSON_Lib {
 	}
 
 	bool JSON_Iterator::can_go_next() {
-		if (s.top().second == nullptr)
+		if (current_type() != IValueType::ListValue)
+			throw "";
+		if (current_list_is_empty())
 			throw "";
 		return s.top().second->next != nullptr;
 	}

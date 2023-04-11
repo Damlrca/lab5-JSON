@@ -75,6 +75,7 @@ namespace JSON_Lib {
 			start = last = nullptr;
 		}
 
+		bool is_empty() { return start == nullptr; }
 		void write(std::ostream& out, int level = 0);
 		IValue* copy() { return new ListValue(*this); }
 		IValueType get_type() { return IValueType::ListValue; }
@@ -97,8 +98,11 @@ namespace JSON_Lib {
 			else if (root->get_type() == IValueType::Value)
 				s.push({ root, nullptr });
 		}
-		//JSON_Iterator(const JSON_Iterator&) = delete; //not work with get_iterator :(
-		//JSON_Iterator& operator=(const JSON_Iterator&) = delete;
+		// it is not safe to copy JSON_Iterator because another iterator can change something
+		JSON_Iterator(const JSON_Iterator&) = default;
+		// it is not safe to copy JSON_Iterator because another iterator can change something
+		JSON_Iterator& operator=(const JSON_Iterator&) = default;
+		~JSON_Iterator() = default;
 		/*
 		//TODO
 		void back_to_root();
@@ -107,17 +111,25 @@ namespace JSON_Lib {
 		IValueType current_type() {
 			return s.top().first->get_type();
 		}
+		bool current_list_is_empty() {
+			if (current_type() != IValueType::ListValue)
+				throw "expected that now is ListValue";
+			return static_cast<ListValue*>(s.top().first)->is_empty();
+		}
 		std::vector<std::string> current_list() {
 			if (current_type() != IValueType::ListValue)
 				throw "expected that now is ListValue";
 			std::vector<std::string> ret;
-			for (auto it = static_cast<ListValue*>(s.top().first)->start; it != nullptr; it = it->next)
-				ret.push_back(it->key);
+			if (!current_list_is_empty())
+				for (auto it = static_cast<ListValue*>(s.top().first)->start; it != nullptr; it = it->next)
+					ret.push_back(it->key);
 			return ret;
 		}
 		std::string& current_key() {
-			if (s.top().second == nullptr)
-				throw "";
+			if (current_type() != IValueType::ListValue)
+				throw "expected that now is ListValue";
+			if (current_list_is_empty())
+				throw "current ListValue is empty";
 			return s.top().second->key;
 		}
 		std::string& current_value() {
