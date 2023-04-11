@@ -89,8 +89,8 @@ namespace JSON_Lib {
 	class JSON_Iterator {
 	private:
 		std::stack<std::pair<IValue*, Link*>> s;
-		// ListValue: {IValue, start} // what if ListValue is empty ?
-		// Value: {IValue, nullptr}
+		// ListValue: {IValue* , start}
+		// Value: {IValue* , nullptr}
 	public:
 		JSON_Iterator(IValue* root) {
 			if (root->get_type() == IValueType::ListValue)
@@ -113,28 +113,27 @@ namespace JSON_Lib {
 		}
 		bool current_list_is_empty() {
 			if (current_type() != IValueType::ListValue)
-				throw "expected that now is ListValue";
+				throw "current_list_is_empty(): expected that current_type() is ListValue";
 			return static_cast<ListValue*>(s.top().first)->is_empty();
 		}
 		std::vector<std::string> current_list() {
 			if (current_type() != IValueType::ListValue)
-				throw "expected that now is ListValue";
+				throw "current_list(): expected that current_type() is ListValue";
 			std::vector<std::string> ret;
-			if (!current_list_is_empty())
-				for (auto it = static_cast<ListValue*>(s.top().first)->start; it != nullptr; it = it->next)
-					ret.push_back(it->key);
+			for (auto it = static_cast<ListValue*>(s.top().first)->start; it != nullptr; it = it->next)
+				ret.push_back(it->key);
 			return ret;
 		}
 		std::string& current_key() {
 			if (current_type() != IValueType::ListValue)
-				throw "expected that now is ListValue";
+				throw "current_key(): expected that current_type() is ListValue";
 			if (current_list_is_empty())
-				throw "current ListValue is empty";
+				throw "current_key(): current list is empty";
 			return s.top().second->key;
 		}
 		std::string& current_value() {
 			if (current_type() != IValueType::Value)
-				throw "expected that now is Value";
+				throw "current_value(): expected that current_type() is Value";
 			return static_cast<Value*>(s.top().first)->value;
 		}
 

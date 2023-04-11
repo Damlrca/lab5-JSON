@@ -92,7 +92,7 @@ int main() {
 	test_non_rec(7, "test2.json");
 	test_non_rec(8, "test3.json");
 	test_non_rec(9, "test4.json");
-	test_non_rec(10, "test5.json"); // empty { }
+	test_non_rec(10, "test5.json");
 
 	JSON js{};
 	ifstream in;

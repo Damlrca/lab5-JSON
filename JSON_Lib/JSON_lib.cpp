@@ -88,18 +88,18 @@ namespace JSON_Lib {
 		std::string res;
 		char c;
 		if (!(in >> c) || c != '\"')
-			throw "read_JSONstring: '\"' expected";
+			throw "read_JSONstring(): '\"' expected";
 		while (in.get(c) && c != '\"')
 			res += c;
 		if (c != '\"')
-			throw "read_JSONstring: '\"' expected";
+			throw "read_JSONstring(): '\"' expected";
 		return res;
 	}
 
 	IValue* read_IValue(std::istream& in) {
 		char first_symbol;
 		if (!(in >> first_symbol))
-			throw "read_IValue: nothing to read";
+			throw "read_IValue(): nothing to read";
 		if (first_symbol == '{') { // ListValue
 			ListValue* res = new ListValue{};
 			char c;
@@ -107,19 +107,19 @@ namespace JSON_Lib {
 			try {
 				do {
 					if (!(in >> c))
-						throw "read_IValue: eof";
+						throw "read_IValue(): ',' or '\"' or '}' expected";
 					if (c == ',' && count == 0)
-						throw "read_IValue: '\"' expected";
+						throw "read_IValue(): '\"' expected instead of ','";
 					if (c == ',' && (!(in >> c) || c != '\"'))
-						throw "read_IValue: '\"' expected";
+						throw "read_IValue(): '\"' expected after ','";
 					if (c != '}' && c != '\"')
-						throw "read_IValue: unexpected symbol";
+						throw "read_IValue(): unexpected symbol";
 					if (c == '}')
-						continue; // or break?
+						continue;
 					in.unget();
 					std::string key = read_JSONstring(in);
 					if (!(in >> c) || c != ':')
-						throw "read_IValue: ':' expected";
+						throw "read_IValue(): ':' expected after key";
 					IValue* iv = read_IValue(in);
 					res->add(key, iv);
 					count++;
@@ -137,7 +137,7 @@ namespace JSON_Lib {
 			return new Value(t);
 		}
 		else {
-			throw "read_IValue: wrong first symbol";
+			throw "read_IValue(): wrong first symbol";
 		}
 	}
 
@@ -203,17 +203,19 @@ namespace JSON_Lib {
 
 	void JSON_Iterator::go_up() {
 		if (!can_go_up())
-			throw "";
+			throw "go_up(): can't go up";
 		s.pop();
 	}
 
 	bool JSON_Iterator::can_go_down() {
-		return (current_type() == IValueType::ListValue) && (!current_list_is_empty());
+		if (current_type() != IValueType::ListValue)
+			throw "can_go_down(): expected that current_type() is ListValue";
+		return !current_list_is_empty();
 	}
 
 	void JSON_Iterator::go_down() {
 		if (!can_go_down())
-			throw "";
+			throw "go_down(): can't go down";
 		auto iv = s.top().second->val;
 		if (iv->get_type() == IValueType::ListValue)
 			s.push({ iv, static_cast<ListValue*>(iv)->start });
@@ -223,29 +225,29 @@ namespace JSON_Lib {
 
 	bool JSON_Iterator::can_go_prev() {
 		if (current_type() != IValueType::ListValue)
-			throw "";
+			throw "can_go_prev(): expected that current_type() is ListValue";
 		if (current_list_is_empty())
-			throw "";
+			throw "can_go_prev(): current list is empty";
 		return s.top().second->prev != nullptr;
 	}
 
 	void JSON_Iterator::go_prev() {
 		if (!can_go_prev())
-			throw "";
+			throw "go_prev(): can't go prev";
 		s.top().second = s.top().second->prev;
 	}
 
 	bool JSON_Iterator::can_go_next() {
 		if (current_type() != IValueType::ListValue)
-			throw "";
+			throw "can_go_next(): expected that current_type() is ListValue";
 		if (current_list_is_empty())
-			throw "";
+			throw "can_go_next(): current list is empty";
 		return s.top().second->next != nullptr;
 	}
 
 	void JSON_Iterator::go_next() {
 		if (!can_go_next())
-			throw "";
+			throw "go_next(): can't go next";
 		s.top().second = s.top().second->next;
 	}
 }
