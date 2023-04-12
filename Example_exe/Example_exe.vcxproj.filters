@@ -27,5 +27,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="test_files\test5.json" />
+    <None Include="test_files\test6.json" />
   </ItemGroup>
 </Project>

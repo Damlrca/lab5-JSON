@@ -10,7 +10,7 @@ void write_using_iterator(JSON& js) {
 	was.push(0);
 	while (!was.empty()) {
 		if (it.current_type() == IValueType::Value) {
-			cout << '\"' << it.current_value() << "\"";
+			cout << '\"' << it.current_value() << '\"';
 			it.go_up();
 			was.pop();
 			if (it.can_go_next())
@@ -19,41 +19,47 @@ void write_using_iterator(JSON& js) {
 		}
 		else if (it.current_type() == IValueType::ListValue) {
 			if (was.top()) {
-				if (it.can_go_next()) {
-					it.go_next();
-					was.top() = 0;
-				}
-				else {
+				if (it.current_list_is_empty()) {
 					was.pop();
-					if (it.can_go_up())
-						it.go_up();
 					cout << string(was.size() * 4, ' ');
 					cout << '}';
-					if (it.can_go_next())
-						cout << ',';
+					if (it.can_go_up()) {
+						it.go_up();
+						if (it.can_go_next())
+							cout << ',';
+					}
 					cout << '\n';
 				}
-			}
-			else if (it.current_list_is_empty()) {
-				cout << "{\n";
-				was.pop();
-				cout << string(was.size() * 4, ' ');
-				cout << '}';
-				if (it.can_go_up()) {
-					it.go_up();
-					if (it.can_go_next())
-						cout << ',';
+				else {
+					if (it.can_go_next()) {
+						it.go_next();
+						was.top() = 0;
+					}
+					else {
+						was.pop();
+						if (it.can_go_up())
+							it.go_up();
+						cout << string(was.size() * 4, ' ');
+						cout << '}';
+						if (it.can_go_next())
+							cout << ',';
+						cout << '\n';
+					}
 				}
-				cout << '\n';
 			}
 			else {
-				if (!it.can_go_prev())
-					cout << "{\n";
-				cout << string(was.size() * 4, ' ');
-				cout << '\"' << it.current_key() << "\": ";
 				was.top() = 1;
-				was.push(0);
-				it.go_down();
+				if (it.current_list_is_empty()) {
+					cout << "{\n";
+				}
+				else {
+					if (!it.can_go_prev())
+						cout << "{\n";
+					cout << string(was.size() * 4, ' ');
+					cout << '\"' << it.current_key() << "\": ";
+					was.push(0);
+					it.go_down();
+				}
 			}
 		}
 	}
@@ -93,6 +99,9 @@ int main() {
 	test_non_rec(8, "test3.json");
 	test_non_rec(9, "test4.json");
 	test_non_rec(10, "test5.json");
+
+	test(11, "test6.json");
+	test_non_rec(12, "test6.json");
 
 	JSON js{};
 	ifstream in;
