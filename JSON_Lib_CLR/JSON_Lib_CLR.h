@@ -4,6 +4,7 @@
 #include "JSON_lib.h"
 #include <fstream>
 #include <sstream>
+#include <msclr\marshal_cppstd.h>
 
 namespace JSON_Lib_CLR {
 	using namespace System::Windows::Forms;
@@ -45,12 +46,8 @@ namespace JSON_Lib_CLR {
 		JSON() {
 			js = new JSON_Lib::JSON();
 		}
-		void read_file(System::String^ _name) {
-			using namespace System::Runtime::InteropServices;
-			const char* chars =
-				(const char*)(Marshal::StringToHGlobalAnsi(_name)).ToPointer();
-			std::string name = chars;
-			Marshal::FreeHGlobal(System::IntPtr((void*)chars));
+		void read_file(System::String^ _filename) {
+			std::string name = msclr::interop::marshal_as<std::string>(_filename);
 			std::ifstream in(name);
 			js->read(in);
 			in.close();
