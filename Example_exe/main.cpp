@@ -4,7 +4,7 @@
 using namespace std;
 using namespace JSON_Lib;
 
-// test function
+// this function used to test iterators and non recursive write
 void write_using_iterator(JSON& js) {
 	auto it = js.get_iterator();
 	stack<int> was;
@@ -69,39 +69,50 @@ void write_using_iterator(JSON& js) {
 void test(int id, string filename) {
 	filename = "test_files/" + filename;
 	cout << "TEST #" << id << " (" << filename << ") recursive write:" << endl;
-	JSON js{};
-	ifstream in;
-	in.open(filename);
-	js.read(in);
-	js.write(cout);
-	in.close();
+	try {
+		JSON js{};
+		ifstream in;
+		in.open(filename);
+		js.read(in);
+		js.write(cout);
+	}
+	catch (const char* x) {
+		cout << "error: " << x << endl;
+	}
+	catch (...) {
+		cout << "unknown error" << endl;
+	}
 }
 
 void test_non_rec(int id, string filename) {
 	filename = "test_files/" + filename;
 	cout << "TEST #" << id << " (" << filename << ") iterative write:" << endl;
-	JSON js{};
-	ifstream in;
-	in.open(filename);
-	js.read(in);
-	//write_using_iterator(js);
-	js.write_iterative(cout);
-	in.close();
+	try {
+		JSON js{};
+		ifstream in;
+		in.open(filename);
+		js.read(in);
+		js.write_iterative(cout);
+	}
+	catch (const char* x) {
+		cout << "error: " << x << endl;
+	}
+	catch (...) {
+		cout << "unknown error" << endl;
+	}
 }
 
 int main() {
 	test(1, "test1.json");
-	test(2, "test2.json");
-	test(3, "test3.json");
-	test(4, "test4.json");
-	test(5, "test5.json");
-
-	test_non_rec(6, "test1.json");
-	test_non_rec(7, "test2.json");
-	test_non_rec(8, "test3.json");
-	test_non_rec(9, "test4.json");
+	test_non_rec(2, "test1.json");
+	test(3, "test2.json");
+	test_non_rec(4, "test2.json");
+	test(5, "test3.json");
+	test_non_rec(6, "test3.json");
+	test(7, "test4.json");
+	test_non_rec(8, "test4.json");
+	test(9, "test5.json");
 	test_non_rec(10, "test5.json");
-
 	test(11, "test6.json");
 	test_non_rec(12, "test6.json");
 
@@ -118,8 +129,15 @@ int main() {
 	cout << "8.go_up         9.go_down      10.go_prev     11.go_next       \n";
 	while (true) {
 		cout << "input command: "; cout.flush();
-		int c; cin >> c;
+		int c = 0;
 		try {
+			string x; cin >> x;
+			try {
+				c = stoi(x);
+			}
+			catch (...) {
+				throw "wrong_command_input";
+			}
 			switch (c)
 			{
 			case 0: {
@@ -151,19 +169,19 @@ int main() {
 			}
 				break;
 			case 4: {
-				cout << (iter.can_go_up() ? "True" : "False") << "\n";
+				cout << (iter.can_go_up() ? "True" : "False") << endl;
 			}
 				break;
 			case 5: {
-				cout << (iter.can_go_down() ? "True" : "False") << "\n";
+				cout << (iter.can_go_down() ? "True" : "False") << endl;
 			}
 				break;
 			case 6: {
-				cout << (iter.can_go_prev() ? "True" : "False") << "\n";
+				cout << (iter.can_go_prev() ? "True" : "False") << endl;
 			}
 				break;
 			case 7: {
-				cout << (iter.can_go_next() ? "True" : "False") << "\n";
+				cout << (iter.can_go_next() ? "True" : "False") << endl;
 			}
 				break;
 			case 8: {
@@ -183,12 +201,12 @@ int main() {
 			}
 				break;
 			default:
-				cout << "wrong_command\n";
+				throw "wrong_command";
 				break;
 			}
 		}
 		catch (const char* x) {
-			cout << "error: " << x << "\n";
+			cout << "error: " << x << endl;
 		}
 	}
 

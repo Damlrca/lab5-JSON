@@ -47,23 +47,31 @@ namespace JSON_Lib_CLR {
 		}
 		void read_file(System::String^ _filename) {
 			std::string name = msclr::interop::marshal_as<std::string>(_filename);
-			std::ifstream in(name);
-			js->read(in);
-			in.close();
+			try {
+				std::ifstream in(name);
+				js->read(in);
+			}
+			catch(...){}
 		}
 		System::String^ write_to_string() {
 			std::stringstream ss;
-			js->write(ss);
+			try { js->write(ss); }
+			catch (...) {}
 			return gcnew System::String(ss.str().c_str());
 		}
 		System::String^ write_to_string_iterative() {
 			std::stringstream ss;
-			js->write_iterative(ss);
+			try { js->write_iterative(ss); }
+			catch (...) {}
 			return gcnew System::String(ss.str().c_str());
 		}
 		TreeNode^ GenerateTreeNode() {
-			auto tn = gcnew TreeNode(gcnew System::String("JSON"), GenerateTreeNodeArray(js->get_root()));
-			tn->ExpandAll();
+			TreeNode^ tn = nullptr;
+			try {
+				tn = gcnew TreeNode(gcnew System::String("JSON"), GenerateTreeNodeArray(js->get_root()));
+				tn->ExpandAll();
+			}
+			catch (...) {}
 			return tn;
 		}
 		~JSON() {
