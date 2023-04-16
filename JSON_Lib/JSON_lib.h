@@ -174,7 +174,10 @@ namespace JSON_Lib {
 		}
 		JSON_Iterator get_iterator();
 		void read(std::istream& in);
+		// Recursive write JSON
 		void write(std::ostream& out);
+		// Non-recursive (iterative) write JSON
+		void write_iterative(std::ostream& out);
 		IValue* get_root() { // delete later!
 			return root;
 		}

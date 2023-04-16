@@ -250,4 +250,54 @@ namespace JSON_Lib {
 			throw "go_next(): can't go next";
 		s.top().second = s.top().second->next;
 	}
+
+	// >-----------------------------<
+	//     JSON::write_iterative()    
+	// >-----------------------------<
+
+	void JSON::write_iterative(std::ostream& out) {
+		JSON_Iterator it = this->get_iterator();
+		std::stack<bool> was;
+		was.push(false);
+		while (!was.empty()) {
+			if (it.current_type() == IValueType::Value) {
+				out << '\"' << it.current_value() << '\"';
+				was.pop();
+				if (it.can_go_up())
+					it.go_up();
+			}
+			else { // it.current_type() == IValueType::ListValue
+				if (was.top()) {
+					if (!it.current_list_is_empty() && it.can_go_next()) {
+						was.top() = false;
+						it.go_next();
+						out << ',' << '\n';
+					}
+					else {
+						was.pop();
+						if (it.can_go_up())
+							it.go_up();
+						out << '\n';
+						out << std::string(was.size() * 4, ' ');
+						out << '}';
+					}
+				}
+				else {
+					was.top() = true;
+					if (it.current_list_is_empty()) {
+						out << '{';
+					}
+					else {
+						if (!it.can_go_prev())
+							out << '{' << '\n';
+						out << std::string(was.size() * 4, ' ');
+						out << '\"' << it.current_key() << "\": ";
+						was.push(false);
+						it.go_down();
+					}
+				}
+			}
+		}
+		out << std::endl;
+	}
 }

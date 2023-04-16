@@ -41,7 +41,6 @@ namespace JSON_Lib_CLR {
 	public ref class JSON {
 	private:
 		JSON_Lib::JSON* js;
-		
 	public:
 		JSON() {
 			js = new JSON_Lib::JSON();
@@ -57,11 +56,15 @@ namespace JSON_Lib_CLR {
 			js->write(ss);
 			return gcnew System::String(ss.str().c_str());
 		}
+		System::String^ write_to_string_iterative() {
+			std::stringstream ss;
+			js->write_iterative(ss);
+			return gcnew System::String(ss.str().c_str());
+		}
 		TreeNode^ GenerateTreeNode() {
 			auto tn = gcnew TreeNode(gcnew System::String("JSON"), GenerateTreeNodeArray(js->get_root()));
 			tn->ExpandAll();
 			return tn;
-			
 		}
 		~JSON() {
 			delete js;

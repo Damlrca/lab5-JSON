@@ -4,6 +4,7 @@
 using namespace std;
 using namespace JSON_Lib;
 
+// test function
 void write_using_iterator(JSON& js) {
 	auto it = js.get_iterator();
 	stack<int> was;
@@ -83,7 +84,8 @@ void test_non_rec(int id, string filename) {
 	ifstream in;
 	in.open(filename);
 	js.read(in);
-	write_using_iterator(js);
+	//write_using_iterator(js);
+	js.write_iterative(cout);
 	in.close();
 }
 

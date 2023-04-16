@@ -17,7 +17,8 @@ namespace JSON_WinForms
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 js.read_file(ofd.FileName);
-                richTextBox1.Text = js.write_to_string();
+                richTextBox_write.Text = js.write_to_string();
+                richTextBox_write_iterative.Text = js.write_to_string_iterative();
                 treeView1.Nodes.Clear();
                 treeView1.Nodes.Add(js.GenerateTreeNode());
             }
