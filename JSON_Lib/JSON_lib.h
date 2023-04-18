@@ -81,9 +81,6 @@ namespace JSON_Lib {
 		IValueType get_type() { return IValueType::ListValue; }
 
 		friend class JSON_Iterator;
-		Link* get_start() { // delete later!
-			return start;
-		}
 	};
 
 	class JSON_Iterator {
@@ -178,9 +175,6 @@ namespace JSON_Lib {
 		void write(std::ostream& out);
 		// Non-recursive (iterative) write JSON
 		void write_iterative(std::ostream& out);
-		IValue* get_root() { // delete later!
-			return root;
-		}
 	};
 }
 

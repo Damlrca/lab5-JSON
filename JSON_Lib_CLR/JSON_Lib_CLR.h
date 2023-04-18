@@ -7,36 +7,13 @@
 #include <msclr\marshal_cppstd.h>
 
 namespace JSON_Lib_CLR {
-	using namespace System::Windows::Forms;
-	using namespace System::Collections::Generic;
+	using TreeNode = System::Windows::Forms::TreeNode;
 
-	array<TreeNode^>^ GenerateTreeNodeArray(JSON_Lib::IValue* iv) {
-		if (auto v = dynamic_cast<JSON_Lib::Value*>(iv))
-			return gcnew array<TreeNode^>{
-			gcnew TreeNode(gcnew System::String(v->get_val().c_str()))};
-		else if (auto v = dynamic_cast<JSON_Lib::ListValue*>(iv)) {
-			JSON_Lib::Link* st = v->get_start();
-			List<TreeNode^>^ lst = gcnew List<TreeNode^>(0);
-			while (st) {
-				lst->Add(gcnew TreeNode(
-					gcnew System::String(st->key.c_str()),
-					GenerateTreeNodeArray(st->val)
-				));
-				st = st->next;
-			}
-			array<TreeNode^>^ res = gcnew array<TreeNode^>(lst->Count);
-			int i = 0;
-			for each (TreeNode^ tn in lst)
-			{
-				res[i] = tn;
-				i++;
-			}
-			return res;
-		}
-		else {
-			throw "";
-		}
-	}
+	// recursive old version
+	// array<System::Windows::Forms::TreeNode^>^ GenerateTreeNodeArray(JSON_Lib::IValue* iv);
+	
+	// iterative new version // TODO: pointer to string in Tag
+	TreeNode^ GenerateTreeNode_from_JSON(JSON_Lib::JSON* js);
 
 	public ref class JSON {
 	private:
@@ -47,10 +24,8 @@ namespace JSON_Lib_CLR {
 		}
 		void read_file(System::String^ _filename) {
 			std::string name = msclr::interop::marshal_as<std::string>(_filename);
-			try {
-				std::ifstream in(name);
-				js->read(in);
-			}
+			std::ifstream in(name);
+			try { js->read(in); }
 			catch(...){}
 		}
 		void read_from_string(System::String^ _data) {
@@ -74,7 +49,10 @@ namespace JSON_Lib_CLR {
 		TreeNode^ GenerateTreeNode() {
 			TreeNode^ tn = nullptr;
 			try {
-				tn = gcnew TreeNode(gcnew System::String("JSON"), GenerateTreeNodeArray(js->get_root()));
+				// recursive old version
+				// tn = gcnew TreeNode(gcnew System::String("JSON"), GenerateTreeNodeArray(js->get_root())); // JSON::get_root() is deleted
+				// iterative new version
+				tn = GenerateTreeNode_from_JSON(js);
 				tn->ExpandAll();
 			}
 			catch (...) {}

@@ -85,6 +85,7 @@
             // 
             richTextBox_write.BorderStyle = BorderStyle.FixedSingle;
             richTextBox_write.Dock = DockStyle.Fill;
+            richTextBox_write.Font = new Font("Courier New", 10.2F, FontStyle.Regular, GraphicsUnit.Point);
             richTextBox_write.Location = new Point(589, 3);
             richTextBox_write.Name = "richTextBox_write";
             richTextBox_write.ReadOnly = true;
@@ -118,6 +119,7 @@
             // 
             richTextBox_write_iterative.BorderStyle = BorderStyle.FixedSingle;
             richTextBox_write_iterative.Dock = DockStyle.Fill;
+            richTextBox_write_iterative.Font = new Font("Courier New", 10.2F, FontStyle.Regular, GraphicsUnit.Point);
             richTextBox_write_iterative.Location = new Point(589, 215);
             richTextBox_write_iterative.Name = "richTextBox_write_iterative";
             richTextBox_write_iterative.ReadOnly = true;
@@ -175,6 +177,7 @@
             // 
             richTextBox1.AcceptsTab = true;
             richTextBox1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            richTextBox1.Font = new Font("Courier New", 10.2F, FontStyle.Regular, GraphicsUnit.Point);
             richTextBox1.Location = new Point(3, 25);
             richTextBox1.Name = "richTextBox1";
             richTextBox1.Size = new Size(281, 321);
