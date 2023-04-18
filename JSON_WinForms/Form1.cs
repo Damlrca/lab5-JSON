@@ -42,7 +42,7 @@ namespace JSON_WinForms
 
         private void Input_to_JSON()
         {
-
+            js.read_from_string(richTextBox1.Text);
         }
 
         private void îòêðûòüToolStripMenuItem_Click(object sender, EventArgs e)
@@ -66,6 +66,9 @@ namespace JSON_WinForms
         private void button_input_json_Click(object sender, EventArgs e)
         {
             Input_to_JSON();
+            Update_richTextBox_write();
+            Update_richTextBox_write_iterative();
+            Update_treeView();
         }
 
         private void button_json_input_Click(object sender, EventArgs e)

@@ -53,6 +53,12 @@ namespace JSON_Lib_CLR {
 			}
 			catch(...){}
 		}
+		void read_from_string(System::String^ _data) {
+			std::string data = msclr::interop::marshal_as<std::string>(_data);
+			std::stringstream ss(data);
+			try { js->read(ss); }
+			catch (...) {}
+		}
 		System::String^ write_to_string() {
 			std::stringstream ss;
 			try { js->write(ss); }
