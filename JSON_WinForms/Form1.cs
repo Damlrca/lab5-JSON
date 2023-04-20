@@ -75,5 +75,13 @@ namespace JSON_WinForms
         {
             JSON_to_Input();
         }
+
+        private void treeView1_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
+        {
+            JSON.UpdateKeyOrValue(e.Node, e.Label);
+            JSON_to_Input();
+            Update_richTextBox_write();
+            Update_richTextBox_write_iterative();
+        }
     }
 }

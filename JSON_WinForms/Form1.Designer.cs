@@ -80,6 +80,7 @@
             treeView1.Name = "treeView1";
             treeView1.Size = new Size(287, 419);
             treeView1.TabIndex = 3;
+            treeView1.AfterLabelEdit += treeView1_AfterLabelEdit;
             // 
             // richTextBox_write
             // 

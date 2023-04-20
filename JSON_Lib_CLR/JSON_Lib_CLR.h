@@ -58,6 +58,7 @@ namespace JSON_Lib_CLR {
 			catch (...) {}
 			return tn;
 		}
+		static void UpdateKeyOrValue(TreeNode^ tn, System::String^ new_string);
 		~JSON() {
 			delete js;
 		}

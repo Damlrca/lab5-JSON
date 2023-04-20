@@ -47,7 +47,7 @@ TreeNode^ JSON_Lib_CLR::GenerateTreeNode_from_JSON(JSON_Lib::JSON* js) {
 	while (!was.empty()) {
 		if (it.current_type() == IValueType::Value) {
 			TreeNode^ tn = gcnew TreeNode(gcnew System::String(it.current_value().c_str()));
-			//tn->Tag = ?
+			tn->Tag = System::IntPtr(&it.current_value());
 			tn_stack->Peek()->Nodes->Add(tn);
 			was.pop();
 			if (it.can_go_up())
@@ -76,7 +76,7 @@ TreeNode^ JSON_Lib_CLR::GenerateTreeNode_from_JSON(JSON_Lib::JSON* js) {
 				}
 				else {
 					TreeNode^ tn = gcnew TreeNode(gcnew System::String(it.current_key().c_str()));
-					//tn->Tag = ?
+					tn->Tag = System::IntPtr(&it.current_key());
 					tn_stack->Push(tn);
 					was.push(false);
 					it.go_down();
@@ -85,4 +85,9 @@ TreeNode^ JSON_Lib_CLR::GenerateTreeNode_from_JSON(JSON_Lib::JSON* js) {
 		}
 	}
 	return root;
+}
+
+void JSON_Lib_CLR::JSON::UpdateKeyOrValue(TreeNode^ tn, System::String^ new_string) {
+	std::string* s = (std::string*)(System::IntPtr(tn->Tag)).ToPointer();
+	*s = msclr::interop::marshal_as<std::string>(new_string);
 }
