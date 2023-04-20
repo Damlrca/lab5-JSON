@@ -66,7 +66,6 @@
             // 
             // сохранитьКакToolStripMenuItem
             // 
-            сохранитьКакToolStripMenuItem.Enabled = false;
             сохранитьКакToolStripMenuItem.Name = "сохранитьКакToolStripMenuItem";
             сохранитьКакToolStripMenuItem.Size = new Size(132, 24);
             сохранитьКакToolStripMenuItem.Text = "Сохранить как...";

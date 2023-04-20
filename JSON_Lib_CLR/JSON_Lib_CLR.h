@@ -28,6 +28,12 @@ namespace JSON_Lib_CLR {
 			try { js->read(in); }
 			catch(...){}
 		}
+		void save_file(System::String^ _filename) {
+			std::string name = msclr::interop::marshal_as<std::string>(_filename);
+			std::ofstream out(name);
+			try { js->write(out); }
+			catch (...) {}
+		}
 		void read_from_string(System::String^ _data) {
 			std::string data = msclr::interop::marshal_as<std::string>(_data);
 			std::stringstream ss(data);

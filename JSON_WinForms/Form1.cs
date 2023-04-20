@@ -60,7 +60,11 @@ namespace JSON_WinForms
 
         private void ÒÓı‡ÌËÚ¸ ‡ÍToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            SaveFileDialog sfd = new SaveFileDialog();
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                js.save_file(sfd.FileName);
+            }
         }
 
         private void button_input_json_Click(object sender, EventArgs e)
@@ -78,6 +82,8 @@ namespace JSON_WinForms
 
         private void treeView1_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
+            if (e.CancelEdit || e.Label == null)
+                return;
             JSON.UpdateKeyOrValue(e.Node, e.Label);
             JSON_to_Input();
             Update_richTextBox_write();
