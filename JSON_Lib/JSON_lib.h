@@ -18,6 +18,7 @@ namespace JSON_Lib {
 		virtual void write(std::ostream& out, int level = 0) = 0;
 		virtual IValue* clone() = 0;
 		virtual IValueType get_type() = 0;
+		virtual ~IValue() = default;
 	};
 
 	std::string read_JSONstring(std::istream& in);
