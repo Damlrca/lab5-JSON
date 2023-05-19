@@ -16,7 +16,7 @@ namespace JSON_Lib {
 	class IValue {
 	public:
 		virtual void write(std::ostream& out, int level = 0) = 0;
-		virtual IValue* copy() = 0;
+		virtual IValue* clone() = 0;
 		virtual IValueType get_type() = 0;
 	};
 
@@ -37,7 +37,7 @@ namespace JSON_Lib {
 		std::string get_val() { return value; }
 
 		void write(std::ostream& out, int level = 0);
-		IValue* copy() { return new Value(*this); }
+		Value* clone() { return new Value(*this); }
 		IValueType get_type() { return IValueType::Value; }
 
 		friend class JSON_Iterator;
@@ -77,7 +77,7 @@ namespace JSON_Lib {
 
 		bool is_empty() { return start == nullptr; }
 		void write(std::ostream& out, int level = 0);
-		IValue* copy() { return new ListValue(*this); }
+		ListValue* clone() { return new ListValue(*this); }
 		IValueType get_type() { return IValueType::ListValue; }
 
 		friend class JSON_Iterator;

@@ -9,7 +9,7 @@ namespace JSON_Lib {
 		prev = nullptr;
 		key = l.key;
 		if (l.val)
-			val = l.val->copy();
+			val = l.val->clone();
 		else
 			val = nullptr;
 		if (l.next) {
@@ -28,7 +28,7 @@ namespace JSON_Lib {
 		delete val;
 		val = nullptr;
 		if (l.val)
-			val = l.val->copy();
+			val = l.val->clone();
 		delete next;
 		next = nullptr;
 		if (l.next) {
